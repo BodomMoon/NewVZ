@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>final_PJ</title>
+	<style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            height: 100%;
+        }
+        #floating-panel {
+            position: absolute;
+            top: 10px;
+            left: 25%;
+            z-index: 5;
+            background-color: #fff;
+            padding: 5px;
+            border: 1px solid #999;
+            text-align: center;
+            font-family: 'Roboto','sans-serif';
+            line-height: 30px;
+            padding-left: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+var map;
+var markers = [];//精靈圖標
+var myLat = 25.066481;
+var myLng = 121.521266;//我的位置
+var bangalore = {lat: 25.066481, lng: 121.521266};
+var marker_me;
+var directionsDisplay;
+var directionsService;
+var select = 'WALKING'
+
+
+function initMap() {
+    directionsDisplay = new google.maps.DirectionsRenderer;
+    directionsService = new google.maps.DirectionsService;
+    map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 15,
+        center: {lat: myLat, lng: myLng}
+    });
+
+
+    directionsDisplay.setMap(map);
+
+
+    google.maps.event.addListener(map, 'click', function(event) {
+      marker_me.setMap(null);
+      addMarker_me(event.latLng, map);
+
+    });
+    addMarker_me(bangalore, map);
+
+}
+
+function addMarker(id,locatlat, locatlng, locaturl) {
+    var pokeLatlng = new google.maps.LatLng(parseFloat(locatlat),parseFloat(locatlng));
+    var marker = new google.maps.Marker({
+        position: pokeLatlng,
+        map: map,
+        icon: locaturl
+    });
+
+
+    marker.addListener('click', function() {//marker點擊事件
+        pokLng = marker.getPosition().lng();
+        pokLat = marker.getPosition().lat();
+        var dis = distance(parseFloat(locatlat), parseFloat(locatlng), myLat, myLng);//距離計算
+        //alert(dis);
+        //alert(markers.indexOf(marker));
+        if(dis <= 100)//判斷距離
+        {
+            androidwebview.toast(parseInt(id),markers.indexOf(marker));
+
+        }
+        else
+        {
+            alert("距離還不夠近");
+            directionsDisplay.setMap(map);
+            calculateAndDisplayRoute(directionsService, directionsDisplay);
+        }
+    });
+    markers.push(marker);
+}
+
+function addMarker_me(location, map) {
+    marker_me = new google.maps.Marker({
+        position: location,
+        map: map
+    });
+    myLng = marker_me.getPosition().lng();
+    myLat = marker_me.getPosition().lat();
+}
+
+function distance(lat1,lon1,lat2,lon2) {//根據經緯度計算距離
+    var R = 6371; // km (change this constant to get miles)
+    var dLat = (lat2-lat1) * Math.PI / 180;
+    var dLon = (lon2-lon1) * Math.PI / 180;
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180 ) * Math.cos(lat2 * Math.PI / 180 ) * Math.sin(dLon/2) * Math.sin(dLon/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    var d = R * c;
+    return Math.round(d*1000);
+}
+
+function deleteMarker(index) {
+    markers[index].setMap(null);
+    directionsDisplay.setMap(null);
+}
+function route(position){
+        if(position == 0)
+            select = 'DRIVING';
+        else if(position == 1)
+            select = 'WALKING';
+        else if(position == 2)
+            select = 'TRANSIT';
+        calculateAndDisplayRoute(directionsService, directionsDisplay);
+    }
+
+
+function calculateAndDisplayRoute(directionsService, directionsDisplay){
+    var origin = new google.maps.LatLng(pokLat,pokLng);
+    var destination = new google.maps.LatLng(myLat,myLng);
+
+    directionsService.route({
+
+        origin:origin,
+        destination: destination,
+        travelMode: google.maps.TravelMode[select]
+    },function(response, status){
+        if (status == google.maps.DirectionsStatus.OK) {
+            directionsDisplay.setDirections(response);
+        }
+        else{
+            window.alert('Directions request failed due to '+status);
+        }
+    });
+}
+
+</script>
+<script async defer
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDDoGvhjHj_Gbe8GPYs3EwcDu4c0twnq_M&callback=initMap"></script>
+</body>
+</html>

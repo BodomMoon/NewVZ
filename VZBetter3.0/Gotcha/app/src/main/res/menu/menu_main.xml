@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_grade"
+        android:orderInCategory="0"
+        android:title="一鍵路徑優化" />
+    <item
+        android:id="@+id/menu_url"
+        android:orderInCategory="1"
+        android:title="一鍵分享遊記" />
+    <item
+        android:id="@+id/menu_url2"
+        android:orderInCategory="2"
+        android:title="切換為英文" />
+</menu>
